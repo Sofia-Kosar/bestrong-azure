@@ -29,3 +29,22 @@ resource "azurerm_subnet" "private_endpoints" {
   private_endpoint_network_policies = "Disabled"
 
 }
+
+resource "azurerm_subnet" "webapp_integration" {
+  name                 = "snet-webapp-integration"
+  resource_group_name  = azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+
+  address_prefixes = ["10.20.3.0/24"]
+
+  delegation {
+    name = "delegation-webapp"
+    service_delegation {
+      name = "Microsoft.Web/serverFarms"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/action"
+      ]
+    }
+  }
+}
+

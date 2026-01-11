@@ -36,3 +36,47 @@ resource "azurerm_private_endpoint" "pe_kv" {
     private_dns_zone_ids = [azurerm_private_dns_zone.zones["kv"].id]
   }
 }
+
+
+# DNS зона має існувати в dns.tf:
+# webapp = "privatelink.azurewebsites.net"
+
+resource "azurerm_private_endpoint" "pe_webapp_sites" {
+  name                = "${var.prefix}-pe-webapp-sites"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  subnet_id           = azurerm_subnet.private_endpoints.id
+  tags                = var.tags
+
+  private_service_connection {
+    name                           = "${var.prefix}-webapp-sites-psc"
+    private_connection_resource_id = azurerm_linux_web_app.api.id
+    subresource_names              = ["sites"]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                 = "webapp-dns"
+    private_dns_zone_ids = [azurerm_private_dns_zone.zones["webapp"].id]
+  }
+}
+
+# resource "azurerm_private_endpoint" "pe_webapp_scm" {
+#   name                = "${var.prefix}-pe-webapp-scm"
+#   location            = azurerm_resource_group.rg.location
+#   resource_group_name = azurerm_resource_group.rg.name
+#   subnet_id           = azurerm_subnet.private_endpoints.id
+#   tags                = var.tags
+
+#   private_service_connection {
+#     name                           = "${var.prefix}-webapp-scm-psc"
+#     private_connection_resource_id = azurerm_linux_web_app.api.id
+#     subresource_names              = ["scm"]
+#     is_manual_connection           = false
+#   }
+
+#   private_dns_zone_group {
+#     name                 = "webapp-dns"
+#     private_dns_zone_ids = [azurerm_private_dns_zone.zones["webapp"].id]
+#   }
+# }

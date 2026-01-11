@@ -1,9 +1,11 @@
 locals {
   private_dns_zones = {
-    acr  = "privatelink.azurecr.io"
-    kv   = "privatelink.vaultcore.azure.net"
-    sql  = "privatelink.database.windows.net"
-    file = "privatelink.file.core.windows.net"
+    acr    = "privatelink.azurecr.io"
+    kv     = "privatelink.vaultcore.azure.net"
+    sql    = "privatelink.database.windows.net"
+    file   = "privatelink.file.core.windows.net"
+    webapp = "privatelink.azurewebsites.net"
+
   }
 }
 
