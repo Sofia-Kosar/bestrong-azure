@@ -29,31 +29,22 @@ resource "azurerm_linux_web_app" "api" {
   https_only      = true
   tags            = var.tags
 
-  # 1) робимо webapp не публічним
-  public_network_access_enabled = false
+  public_network_access_enabled = true
 
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.app.id]
   }
 
-  # outbound у VNet (для доступу до private ACR/KV/SQL/Files)
   virtual_network_subnet_id = azurerm_subnet.webapp_integration.id
 
   app_settings = {
-    # якщо контейнер слухає не 8080 — постав реальний порт
-    WEBSITES_PORT = "8080"
-
-    # потрібно для роботи storage mount через VNet integration
-    WEBSITE_CONTENTOVERVNET = "1"
-
-    # якщо з маунтом будуть проблеми — спробуй видалити цей параметр або зробити "true"
+    WEBSITES_PORT                       = "8080"
+    WEBSITE_CONTENTOVERVNET             = "1"
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
-
-    SQL_SERVER_FQDN = azurerm_mssql_server.sql.fully_qualified_domain_name
+    SQL_SERVER_FQDN                     = azurerm_mssql_server.sql.fully_qualified_domain_name
   }
 
-  # 3) Azure Files mount як папка у контейнері
   storage_account {
     name         = "userfiles"
     type         = "AzureFiles"
@@ -72,15 +63,15 @@ resource "azurerm_linux_web_app" "api" {
       docker_registry_url = local.docker_registry_url
     }
 
-    # Pull з ACR через Managed Identity
     container_registry_use_managed_identity       = true
     container_registry_managed_identity_client_id = azurerm_user_assigned_identity.app.client_id
   }
 
   depends_on = [
-    azurerm_role_assignment.acr_pull
+    azurerm_role_assignment.acr_pull,
+    azurerm_role_assignment.kv_secrets_user
   ]
+
+  
 }
-
-
 
