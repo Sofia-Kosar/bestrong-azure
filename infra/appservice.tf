@@ -4,7 +4,6 @@
 
 locals {
   acr_login_server    = azurerm_container_registry.acr.login_server
-  
   registry_host       = split("/", var.container_image)[0]
   docker_registry_url = "https://${local.registry_host}"
   docker_image_name   = "DOCKER|${var.container_image}"

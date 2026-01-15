@@ -70,5 +70,5 @@ https://drive.google.com/drive/folders/1Nlk66kXhcFD204rej84FNiBFT9DJ4y09?usp=sha
 ---
 
 ## Автор
-
-Sofia Kosar
+ffffff
+Sofiia Kosar
