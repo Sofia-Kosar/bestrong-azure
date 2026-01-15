@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      # Тут тимчасово можна задати connection string, але краще через .env
+      ConnectionStrings__MovieContext: "Data Source=/tmp/app.db;Mode=ReadWriteCreate"
