@@ -11,9 +11,10 @@ variable "sql_admin_password" {
   sensitive = true
 }
 
+
 variable "container_image" {
+  description = "Full image name including tag, e.g. bestrongacrqi77nn.azurecr.io/dotnetcrudwebapi:abcd123"
   type        = string
-  description = "Напр: myacr.azurecr.io/backend:1.0.0"
 }
 
 variable "tags" {

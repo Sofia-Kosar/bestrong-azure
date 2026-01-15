@@ -4,9 +4,10 @@
 
 locals {
   acr_login_server    = azurerm_container_registry.acr.login_server
-  docker_registry_url = "https://${local.acr_login_server}"
-  # var.container_image: myacr.azurecr.io/backend:1.0.0  ->  backend:1.0.0
-  docker_image_name = replace(var.container_image, "${local.acr_login_server}/", "")
+  
+  registry_host       = split("/", var.container_image)[0]
+  docker_registry_url = "https://${local.registry_host}"
+  docker_image_name   = "DOCKER|${var.container_image}"
 }
 
 resource "azurerm_service_plan" "asp" {
@@ -37,13 +38,14 @@ resource "azurerm_linux_web_app" "api" {
   }
 
   virtual_network_subnet_id = azurerm_subnet.webapp_integration.id
-
   app_settings = {
     WEBSITES_PORT                       = "8080"
     WEBSITE_CONTENTOVERVNET             = "1"
+    WEBSITE_PULL_IMAGE_OVER_VNET        = "1"
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
     SQL_SERVER_FQDN                     = azurerm_mssql_server.sql.fully_qualified_domain_name
   }
+
 
   storage_account {
     name         = "userfiles"
