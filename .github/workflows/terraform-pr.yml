@@ -1,31 +1,39 @@
-name: terraform-pr
+name: pr-checks
 
 on:
   pull_request:
-    branches: [ "master" ]
-    paths:
-      - "infra/**"
-      - ".github/workflows/**"
+    branches: ["master"]
 
 permissions:
   contents: read
 
 jobs:
-  plan:
+  docker-build:
+    name: Docker build + smoke test
     runs-on: ubuntu-latest
-    env:
-      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      TF_VAR_prefix: ${{ secrets.TF_VAR_prefix }}
-      TF_VAR_location: ${{ secrets.TF_VAR_location }}
-      TF_VAR_container_image: ${{ secrets.TF_VAR_container_image }}
-      TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_sql_admin_password }}
+      - name: Build image
+        run: |
+          docker build -t app:pr-${{ github.sha }} .
 
-      TF_IN_AUTOMATION: "true"
+      - name: Smoke test (optional but nice)
+        run: |
+          docker run -d --name api -p 8080:8080 app:pr-${{ github.sha }}
+          # wait for app
+          for i in {1..30}; do
+            curl -fsS http://localhost:8080/api/movies && break || sleep 2
+          done
+          curl -fsS http://localhost:8080/api/movies
+          docker logs api --tail=200
+          docker rm -f api
 
+  terraform-plan:
+    name: Terraform fmt/validate/plan
+    runs-on: ubuntu-latest
+    # Якщо хочеш план лише коли змінюється infra — розкоментуй if + paths в on
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +49,11 @@ jobs:
 
       - name: Terraform init
         working-directory: infra
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         run: terraform init -input=false
 
       - name: Terraform validate
@@ -49,4 +62,13 @@ jobs:
 
       - name: Terraform plan
         working-directory: infra
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+          TF_VAR_prefix: ${{ secrets.TF_VAR_prefix }}
+          TF_VAR_location: ${{ secrets.TF_VAR_location }}
+          TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_sql_admin_password }}
         run: terraform plan -input=false
