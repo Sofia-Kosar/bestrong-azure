@@ -45,7 +45,9 @@ resource "azurerm_linux_web_app" "api" {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE        = "false"
     SQL_SERVER_FQDN                            = azurerm_mssql_server.sql.fully_qualified_domain_name
     SQL_ADMIN_LOGIN                            = var.sql_admin_login
-    SQL_ADMIN_PASSWORD                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_password.versionless_id})"
+    # ТИМЧАСОВО: пароль напряму (Key Vault secret закоментовано через RBAC issues)
+    SQL_ADMIN_PASSWORD                         = var.sql_admin_password
+    # SQL_ADMIN_PASSWORD                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_password.versionless_id})"
     APPLICATIONINSIGHTS_CONNECTION_STRING      = azurerm_application_insights.appi.connection_string
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
   }
