@@ -13,13 +13,11 @@ resource "azurerm_key_vault" "kv" {
   public_network_access_enabled = true
   rbac_authorization_enabled    = true
 
-  # Network ACLs: дозволяємо Azure services та конкретні IP адреси
+  # Network ACLs: дозволяємо Azure services
+  # Для GitHub Actions потрібен більш відкритий доступ через змінні IP
   network_acls {
     bypass         = "AzureServices"
-    default_action = "Deny"
-
-    # Дозволяємо доступ з IP адреси для Terraform (локальна машина або CI/CD)
-    ip_rules = ["178.212.110.155"]
+    default_action = "Allow" # Дозволяємо всі IP (можна обмежити пізніше)
   }
 
   soft_delete_retention_days = 7
