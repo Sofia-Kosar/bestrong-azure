@@ -76,6 +76,6 @@ resource "azurerm_linux_web_app" "api" {
   depends_on = [
     azurerm_role_assignment.acr_pull,
     azurerm_role_assignment.kv_secrets_user,
-    azurerm_key_vault_secret.sql_password,
+    # azurerm_key_vault_secret.sql_password, # Закоментовано тимчасово
   ]
 }
