@@ -46,6 +46,15 @@ resource "azurerm_private_endpoint" "pe_kv" {
   }
 }
 
+# Даємо час на RBAC propagation
+resource "time_sleep" "wait_for_rbac" {
+  create_duration = "60s"
+
+  depends_on = [
+    azurerm_role_assignment.kv_admin_current_user
+  ]
+}
+
 # Зберігаємо SQL пароль у Key Vault
 resource "azurerm_key_vault_secret" "sql_password" {
   name         = "sql-admin-password"
@@ -53,7 +62,8 @@ resource "azurerm_key_vault_secret" "sql_password" {
   key_vault_id = azurerm_key_vault.kv.id
 
   depends_on = [
-    azurerm_role_assignment.kv_admin_current_user
+    azurerm_role_assignment.kv_admin_current_user,
+    time_sleep.wait_for_rbac
   ]
 }
 
@@ -62,6 +72,10 @@ resource "azurerm_role_assignment" "kv_admin_current_user" {
   scope                = azurerm_key_vault.kv.id
   role_definition_name = "Key Vault Secrets Officer"
   principal_id         = data.azurerm_client_config.current.object_id
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
