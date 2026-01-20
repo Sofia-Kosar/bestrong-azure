@@ -5,7 +5,7 @@ resource "azurerm_container_registry" "acr" {
   location            = azurerm_resource_group.rg.location
 
   sku           = "Premium"
-  admin_enabled = false
+  admin_enabled = true # Потрібно для GitHub Actions authentication
 
   # Дозволяємо публічний доступ для GitHub Actions push
   # Private endpoint все ще працює для App Service
