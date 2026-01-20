@@ -7,7 +7,9 @@ resource "azurerm_container_registry" "acr" {
   sku           = "Premium"
   admin_enabled = false
 
-  public_network_access_enabled = false
+  # Дозволяємо публічний доступ для GitHub Actions push
+  # Private endpoint все ще працює для App Service
+  public_network_access_enabled = true
   tags                          = var.tags
 }
 
