@@ -17,6 +17,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug - List files
+        run: |
+          echo "=== Repository root ===" ls -la
+          echo "=== DotNet project ===" 
+          ls -la DotNet-8-Crud-Web-API-Example/DotNetCrudWebApi/ || echo "Directory not found!"
+          find . -name "*.csproj" -type f
+
       - name: Docker login to ACR
         uses: azure/docker-login@v2
         with:

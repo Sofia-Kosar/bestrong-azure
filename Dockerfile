@@ -8,6 +8,9 @@ COPY . .
 # Переходимо в папку проєкту
 WORKDIR /src/DotNet-8-Crud-Web-API-Example/DotNetCrudWebApi
 
+# DEBUG: Перевіряємо що файли скопіювались
+RUN ls -la && pwd
+
 # Restore залежностей
 RUN dotnet restore DotNetCrudWebApi.csproj
 

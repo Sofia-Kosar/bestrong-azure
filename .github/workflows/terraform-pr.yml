@@ -15,6 +15,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug - List files
+        run: |
+          echo "=== Repository root ==="
+          ls -la
+          echo "=== DotNet project ==="
+          ls -la DotNet-8-Crud-Web-API-Example/DotNetCrudWebApi/ || echo "Directory not found!"
+          find . -name "*.csproj" -type f
+
       - name: Build image
         run: |
           docker build -t app:pr-${{ github.sha }} .
@@ -71,4 +79,5 @@ jobs:
           TF_VAR_prefix: ${{ secrets.TF_VAR_prefix }}
           TF_VAR_location: ${{ secrets.TF_VAR_location }}
           TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_sql_admin_password }}
-        run: terraform plan -input=false
+          TF_VAR_container_image: ${{ secrets.ACR_LOGIN_SERVER }}/dotnetcrudwebapi:latest
+        run: terraform plan -input=false -refresh=false
