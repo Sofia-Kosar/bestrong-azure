@@ -17,7 +17,7 @@ resource "azurerm_key_vault" "kv" {
   network_acls {
     bypass         = "AzureServices"
     default_action = "Deny"
-    
+
     # Дозволяємо доступ з IP адреси для Terraform (локальна машина або CI/CD)
     ip_rules = ["178.212.110.155"]
   }

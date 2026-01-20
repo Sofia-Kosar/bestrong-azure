@@ -7,7 +7,7 @@ locals {
   registry_host       = split("/", var.container_image)[0]
   docker_registry_url = "https://${local.registry_host}"
   # У application_stack блоці НЕ потрібен префікс DOCKER|
-  docker_image_name   = var.container_image
+  docker_image_name = var.container_image
 }
 
 resource "azurerm_service_plan" "asp" {
@@ -39,14 +39,14 @@ resource "azurerm_linux_web_app" "api" {
 
   virtual_network_subnet_id = azurerm_subnet.webapp_integration.id
   app_settings = {
-    WEBSITES_PORT                             = "8080"
-    WEBSITE_CONTENTOVERVNET                   = "1"
-    WEBSITE_PULL_IMAGE_OVER_VNET              = "1"
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE       = "false"
-    SQL_SERVER_FQDN                           = azurerm_mssql_server.sql.fully_qualified_domain_name
-    SQL_ADMIN_LOGIN                           = var.sql_admin_login
-    SQL_ADMIN_PASSWORD                        = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_password.versionless_id})"
-    APPLICATIONINSIGHTS_CONNECTION_STRING     = azurerm_application_insights.appi.connection_string
+    WEBSITES_PORT                              = "8080"
+    WEBSITE_CONTENTOVERVNET                    = "1"
+    WEBSITE_PULL_IMAGE_OVER_VNET               = "1"
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE        = "false"
+    SQL_SERVER_FQDN                            = azurerm_mssql_server.sql.fully_qualified_domain_name
+    SQL_ADMIN_LOGIN                            = var.sql_admin_login
+    SQL_ADMIN_PASSWORD                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.sql_password.versionless_id})"
+    APPLICATIONINSIGHTS_CONNECTION_STRING      = azurerm_application_insights.appi.connection_string
     ApplicationInsightsAgent_EXTENSION_VERSION = "~3"
   }
 
