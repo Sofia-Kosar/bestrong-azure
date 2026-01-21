@@ -19,7 +19,8 @@ jobs:
 
       - name: Debug - List files
         run: |
-          echo "=== Repository root ===" ls -la
+          echo "=== Repository root ==="
+          ls -la
           echo "=== DotNet project ===" 
           ls -la DotNet-8-Crud-Web-API-Example/DotNetCrudWebApi/ || echo "Directory not found!"
           find . -name "*.csproj" -type f
@@ -56,8 +57,6 @@ jobs:
       TF_VAR_prefix: ${{ secrets.TF_VAR_prefix }}
       TF_VAR_location: ${{ secrets.TF_VAR_location }}
       TF_VAR_sql_admin_password: ${{ secrets.TF_VAR_sql_admin_password }}
-
-      TF_VAR_container_image: ${{ needs.build-and-push.outputs.image_full }}
       TF_IN_AUTOMATION: "true"
 
     steps:
@@ -79,4 +78,11 @@ jobs:
 
       - name: Terraform apply
         working-directory: infra
-        run: terraform apply -input=false -auto-approve
+        run: |
+          if [ -n "${{ needs.build-and-push.outputs.image_full }}" ]; then
+            echo "Applying with container image: ${{ needs.build-and-push.outputs.image_full }}"
+            terraform apply -input=false -auto-approve -var="container_image=${{ needs.build-and-push.outputs.image_full }}"
+          else
+            echo "No container image provided, using default"
+            terraform apply -input=false -auto-approve
+          fi

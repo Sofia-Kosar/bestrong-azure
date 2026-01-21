@@ -55,17 +55,18 @@ resource "time_sleep" "wait_for_rbac" {
   ]
 }
 
-# Зберігаємо SQL пароль у Key Vault
-resource "azurerm_key_vault_secret" "sql_password" {
-  name         = "sql-admin-password"
-  value        = var.sql_admin_password
-  key_vault_id = azurerm_key_vault.kv.id
-
-  depends_on = [
-    azurerm_role_assignment.kv_admin_current_user,
-    time_sleep.wait_for_rbac
-  ]
-}
+# ТИМЧАСОВО закоментовано - RBAC issues в GitHub Actions
+# Створимо вручну після успішного deploy або розкоментуємо пізніше
+# resource "azurerm_key_vault_secret" "sql_password" {
+#   name         = "sql-admin-password"
+#   value        = var.sql_admin_password
+#   key_vault_id = azurerm_key_vault.kv.id
+#
+#   depends_on = [
+#     azurerm_role_assignment.kv_admin_current_user,
+#     time_sleep.wait_for_rbac
+#   ]
+# }
 
 # Даємо доступ поточному користувачу (Service Principal) для створення секретів
 resource "azurerm_role_assignment" "kv_admin_current_user" {
