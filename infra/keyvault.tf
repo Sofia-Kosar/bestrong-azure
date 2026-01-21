@@ -47,13 +47,14 @@ resource "azurerm_private_endpoint" "pe_kv" {
 }
 
 # Даємо час на RBAC propagation
-resource "time_sleep" "wait_for_rbac" {
-  create_duration = "60s"
-
-  depends_on = [
-    azurerm_role_assignment.kv_admin_current_user
-  ]
-}
+# ТИМЧАСОВО ЗАКОМЕНТОВАНО: залежить від kv_admin_current_user
+# resource "time_sleep" "wait_for_rbac" {
+#   create_duration = "60s"
+#
+#   depends_on = [
+#     azurerm_role_assignment.kv_admin_current_user
+#   ]
+# }
 
 # ТИМЧАСОВО закоментовано - RBAC issues в GitHub Actions
 # Створимо вручну після успішного deploy або розкоментуємо пізніше
@@ -69,15 +70,16 @@ resource "time_sleep" "wait_for_rbac" {
 # }
 
 # Даємо доступ поточному користувачу (Service Principal) для створення секретів
-resource "azurerm_role_assignment" "kv_admin_current_user" {
-  scope                = azurerm_key_vault.kv.id
-  role_definition_name = "Key Vault Secrets Officer"
-  principal_id         = data.azurerm_client_config.current.object_id
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+# ТИМЧАСОВО ЗАКОМЕНТОВАНО: потребує Owner/User Access Administrator прав
+# resource "azurerm_role_assignment" "kv_admin_current_user" {
+#   scope                = azurerm_key_vault.kv.id
+#   role_definition_name = "Key Vault Secrets Officer"
+#   principal_id         = data.azurerm_client_config.current.object_id
+#
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
 
 # DNS зона має існувати в dns.tf:
