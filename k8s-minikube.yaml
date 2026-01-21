@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bestrong-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bestrong-api
+  template:
+    metadata:
+      labels:
+        app: bestrong-api
+    spec:
+      containers:
+        - name: api
+          image: bestrong-api:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://0.0.0.0:8080"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: ConnectionStrings__MovieContext
+              value: "Data Source=/app/data/App.db;Mode=ReadWriteCreate"
+          volumeMounts:
+            - name: app-data
+              mountPath: /app/data
+      volumes:
+        - name: app-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bestrong-api
+spec:
+  selector:
+    app: bestrong-api
+  type: NodePort
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
