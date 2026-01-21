@@ -3,11 +3,23 @@
 ############################################
 
 locals {
-  acr_login_server    = azurerm_container_registry.acr.login_server
-  registry_host       = split("/", var.container_image)[0]
+  acr_login_server = azurerm_container_registry.acr.login_server
+  
+  # Compute expected ACR name (matches the resource name pattern)
+  expected_acr_host = "${lower(var.prefix)}acr${random_string.suffix.result}.azurecr.io"
+  
+  # Check if container_image is provided and not empty
+  has_container_image = var.container_image != "" && var.container_image != null
+  
+  # Extract registry host from container_image, or use expected ACR host
+  # Use try() to handle cases where ACR might not be available during validation
+  registry_host = local.has_container_image ? split("/", var.container_image)[0] : try(local.acr_login_server, local.expected_acr_host)
+  
+  # Build the registry URL
   docker_registry_url = "https://${local.registry_host}"
-  # У application_stack блоці НЕ потрібен префікс DOCKER|
-  docker_image_name = var.container_image
+  
+  # Full image name with tag
+  docker_image_name = local.has_container_image ? var.container_image : "${local.registry_host}/dotnetcrudwebapi:latest"
 }
 
 resource "azurerm_service_plan" "asp" {
